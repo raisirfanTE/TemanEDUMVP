@@ -10,6 +10,7 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 from sqlalchemy import func, select
 
 from auth import authenticate_user
@@ -1081,7 +1082,7 @@ def update_profile(profile: dict[str, Any], question_id: str, answer: Any) -> di
 def render_chat_message(role: str, content: str) -> None:
     """Render a chat message with smooth animation and modern styling"""
     css_class = "assistant-message" if role == "assistant" else "user-message"
-    author = "Aina • TemanEDU" if role == "assistant" else "You"
+    author = "Nurul • TemanEDU" if role == "assistant" else "You"
     avatar = "🤖" if role == "assistant" else "👤"
     
     st.markdown(
@@ -1357,9 +1358,6 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
         current_idx = ids.index(current_question_id) + 1 if current_question_id in ids else len(ids)
         st.caption(f"✨ Question {current_idx} of {len(question_map)}")
 
-    # Chat messages container
-    st.markdown("<div class='chat-messages-container'>", unsafe_allow_html=True)
-    
     # Render conversation history
     for idx, question in enumerate(question_map):
         question_id = question["id"]
@@ -1401,9 +1399,6 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
                 unsafe_allow_html=True,
             )
             break
-    
-    st.markdown("</div>", unsafe_allow_html=True)
-
     # Handle completion
     if current_question_id is None:
         st.markdown(
@@ -1433,9 +1428,6 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
 
     answer_payload: dict[str, Any] = {}
     question_type = current_question["type"]
-
-    # Input rendering (wrap in styled container)
-    st.markdown("<div class='input-area fade-in'>", unsafe_allow_html=True)
 
     if question_type == "multiselect_programs":
         options = current_question["options"]
@@ -1652,10 +1644,7 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
             selected_docs = ["None yet"]
         answer_payload = {"preparedness_checklist": selected_docs}
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
     # Navigation buttons
-    st.markdown("<div class='nav-buttons'>", unsafe_allow_html=True)
     nav_left, nav_right = st.columns(2)
     questions_order = [item["id"] for item in question_map]
     current_idx = questions_order.index(current_question_id)
@@ -1694,9 +1683,6 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
                 next_question_id = next_question(updated_profile, _chat_question_map(updated_profile))
                 _query_set(chat_q=next_question_id if next_question_id else "done")
                 st.rerun()
-    
-    st.markdown("</div>", unsafe_allow_html=True)
-
     # Edit option for current answer
     if _question_answered(current_question_id, profile):
         if st.button(
@@ -2905,11 +2891,14 @@ def _sync_student_profile_to_state(prefix: str, profile: dict[str, Any]) -> None
 
 def render_student_chat_page(language: str, user: dict[str, Any] | None) -> None:
     inject_interaction_js()
+    logo_uri = _logo_data_uri()
+    logo_html = f"<img src='{logo_uri}' class='student-chat-hero-logo' alt='TemanEDU' />" if logo_uri else ""
     st.markdown(
-        """
-        <div class="chat-page-card">
+        f"""
+        <div class="chat-page-card student-chat-hero">
+            {logo_html}
             <h3>Student Chat</h3>
-            <p>Answer one question at a time. TemanEDU will generate deterministic, explainable pathways and university options.</p>
+            <p>Answer one question at a time. TemanEDU will generate rule-based, explainable pathways and university options.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -3414,59 +3403,312 @@ def _inject_base_page_css() -> None:
         """
         <style>
         [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"] {display: none !important;}
-        .block-container {max-width: min(1380px, 95vw) !important; padding-top: 0.45rem !important; padding-bottom: 2rem !important;}
+        .block-container {
+            max-width: min(1180px, 94vw) !important;
+            margin: 0 auto !important;
+            padding-top: 0.65rem !important;
+            padding-bottom: 2.2rem !important;
+        }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
 
+def _landing_state_key() -> str:
+    return "landing_started_v1"
+
+
+def render_landing_page(language: str) -> None:
+    """Splash / landing screen shown once per session before entering the app."""
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"],
+        [data-testid="stSidebarCollapsedControl"] {display: none !important;}
+        [data-testid="stHeader"] {background: transparent !important;}
+        .block-container {max-width: min(760px, 96vw) !important; padding-top: 1.2rem !important; padding-bottom: 2.2rem !important;}
+        [data-testid="stAppViewContainer"] {
+            background:
+                radial-gradient(circle at 88% 8%, rgba(255, 122, 0, 0.14), transparent 26%),
+                radial-gradient(circle at 16% 18%, rgba(13, 71, 161, 0.11), transparent 38%),
+                linear-gradient(170deg, #f5f9ff 0%, #edf3fb 100%) !important;
+        }
+        footer, [data-testid="stToolbar"] {display: none !important;}
+        .landing-shell {
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid rgba(13, 71, 161, 0.12);
+            box-shadow: 0 14px 36px rgba(13, 71, 161, 0.09), 0 2px 6px rgba(15, 23, 42, 0.05);
+            background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+            padding: 2rem 1.5rem 1.3rem;
+        }
+        .landing-shell::before {
+            content: "";
+            position: absolute;
+            top: -84px;
+            right: -56px;
+            width: 240px;
+            height: 240px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(255, 122, 0, 0.2) 0%, rgba(255, 122, 0, 0) 70%);
+            pointer-events: none;
+        }
+        .landing-shell::after {
+            content: "";
+            position: absolute;
+            bottom: -100px;
+            left: -70px;
+            width: 250px;
+            height: 250px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(30, 92, 203, 0.2) 0%, rgba(30, 92, 203, 0) 72%);
+            pointer-events: none;
+        }
+        .landing-hero {
+            text-align: center;
+            margin-bottom: 0.65rem;
+            position: relative;
+            z-index: 1;
+        }
+        .landing-logo-wrap {
+            width: 100%;
+            margin: 0 auto 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .landing-logo {
+            width: min(280px, 68vw);
+            margin: 0 auto;
+            display: block;
+            filter: drop-shadow(0 10px 18px rgba(13, 71, 161, 0.18));
+            will-change: transform;
+        }
+        .landing-sub {
+            margin: 0.2rem auto 0.65rem;
+            max-width: 44ch;
+            font-size: 1.05rem;
+            line-height: 1.55;
+            color: #4d6581 !important;
+            font-weight: 400;
+            text-align: center !important;
+        }
+        .landing-foot {
+            margin-top: 0.45rem;
+            font-size: 0.82rem;
+            color: #94a7bd !important;
+            line-height: 1.4;
+            text-align: center !important;
+        }
+        .landing-copy {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .st-key-landing_begin button {
+            width: 100%;
+            border-radius: 999px !important;
+            background: linear-gradient(145deg, #ff8c1a, #ff7a00) !important;
+            color: #ffffff !important;
+            font-size: 1.02rem !important;
+            font-weight: 700 !important;
+            padding: 0.75rem 1.2rem !important;
+            letter-spacing: 0.01em;
+            border: 1px solid #de6800 !important;
+            box-shadow: 0 8px 18px rgba(255, 122, 0, 0.22) !important;
+            transition: transform 150ms ease, box-shadow 150ms ease;
+        }
+        .st-key-landing_begin button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(255, 122, 0, 0.28) !important;
+            color: #ffffff !important;
+        }
+        @media (max-width: 640px) {
+            .block-container {padding-top: 0.6rem !important;}
+            .landing-shell {padding: 1.45rem 1rem 1rem; border-radius: 16px;}
+            .landing-logo {width: min(220px, 70vw);}
+            .landing-sub {font-size: 0.92rem;}
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # ── Text content ──
+    subtitle = (
+        "<div style='text-align:center'>"
+        "Your friendly student advisor for matching universities & programs, "
+        "tracking readiness, and planning next steps."
+        "</div>"
+        if language == "en"
+        else "<div style='text-align:center'>"
+        "Penasihat pelajar anda untuk padanan universiti & program, "
+        "semak kesediaan, dan rancang langkah seterusnya."
+        "</div>"
+    )
+    button_label = "🚀 Begin now" if language == "en" else "🚀 Mula sekarang"
+    footer = (
+        "By continuing you agree to share only non-sensitive info. You can clear answers anytime."
+        if language == "en"
+        else "Dengan meneruskan anda bersetuju untuk berkongsi maklumat bukan sensitif sahaja."
+    )
+
+    logo_uri = _logo_data_uri()
+    logo_html = f"<img src='{logo_uri}' class='landing-logo' alt='TemanEDU' />" if logo_uri else ""
+
+    st.markdown(
+        f"""
+        <section class="landing-shell">
+            <div class="landing-hero">
+                <div class="landing-logo-wrap">{logo_html}</div>
+                <div class="landing-copy">
+                    <p class="landing-sub" style="text-align:center; margin-left:auto; margin-right:auto;">{subtitle}</p>
+                    <p class="landing-foot" style="text-align:center; margin-left:auto; margin-right:auto;">{footer}</p>
+                </div>
+            </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+    components.html(
+        """
+        <script>
+        (function() {
+          const parentDoc = window.parent.document;
+          const logo = parentDoc.querySelector(".landing-logo");
+          if (!logo) return;
+          let frame = 0;
+          const tick = () => {
+            frame += 1;
+            const y = Math.sin(frame / 26) * 7;
+            const r = Math.sin(frame / 45) * 0.8;
+            logo.style.transform = `translateY(${y}px) rotate(${r}deg)`;
+            requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        })();
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
+    if st.button(button_label, key="landing_begin", use_container_width=True, type="primary"):
+        st.session_state[_landing_state_key()] = True
+        _navigate(language=language, access="Student", student_page="student-chat")
+
+
 def _render_top_nav(language: str, active_page: str | None, active_access: str = "Student") -> None:
     links = [
-        ("student-chat", "Student Chat", "Student"),
-        ("results", "Results", "Student"),
-        ("course-finder", "Course Finder", "Student"),
-        ("application-tracker", "Tracker", "Student"),
-        ("about", "About Us", "Student"),
+        ("student-chat", "💬 Student Chat", "Student"),
+        ("results", "📊 Results", "Student"),
+        ("course-finder", "🔍 Course Finder", "Student"),
+        ("application-tracker", "📋 Tracker", "Student"),
+        ("about", "ℹ️ About Us", "Student"),
     ]
 
-    home_href = f"?language={language}&access=Student&student_page=student-chat"
     logo_uri = _logo_data_uri()
-    if logo_uri:
-        logo_html = (
-            f"<div class='nav-logo-box'>"
-            f"<a href='{home_href}' class='nav-brand nav-logo-link'>"
-            f"<img src='{logo_uri}' alt='TemanEDU logo' class='top-logo-img' />"
-            f"<span class='top-logo-wordmark'><span class='brand-teman'>Teman</span><span class='brand-edu'>EDU</span></span>"
-            f"</a>"
-            f"</div>"
-        )
-    else:
-        logo_html = (
-            f"<div class='nav-logo-box'>"
-            f"<a href='{home_href}' class='nav-brand nav-logo-link'>"
-            f"<span class='top-logo-wordmark'><span class='brand-teman'>Teman</span><span class='brand-edu'>EDU</span></span>"
-            f"</a>"
-            f"</div>"
-        )
+    logo_img = f"<img src='{logo_uri}' alt='TemanEDU' class='hb-nav-logo'/>" if logo_uri else "<span class='hb-nav-logo-fallback'>🎓</span>"
 
-    nav_shell = st.container(border=True)
-    with nav_shell:
-        left, right = st.columns([1.45, 5.4], gap="small")
-        with left:
-            st.markdown(logo_html, unsafe_allow_html=True)
-        with right:
-            nav_cols = st.columns(len(links), gap="small")
-            for idx, (page, label, access) in enumerate(links):
-                is_active = access == active_access and page == active_page
-                with nav_cols[idx]:
-                    if st.button(
-                        label,
-                        key=f"top_nav_btn_{idx}_{access}_{page or 'root'}",
-                        use_container_width=True,
-                        type="primary" if is_active else "secondary",
-                    ):
-                        _navigate(language=language, access=access, student_page=page)
+    # Build nav link items as a compact string (no newlines)
+    nav_items = []
+    for page, label, access in links:
+        is_active = access == active_access and page == active_page
+        active_cls = " hb-nav-active" if is_active else ""
+        href = f"?language={language}&access={access}&student_page={page}"
+        nav_items.append(f'<a href="{href}" class="hb-nav-link{active_cls}">{label}</a>')
+    nav_items_html = "".join(nav_items)
+
+    # ── 1. Inject CSS (plain string, no f-string needed) ──
+    st.markdown(
+        """<style>
+.hb-navbar{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1.2rem;background:rgba(255,255,255,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(13,71,161,0.08);border-radius:16px;box-shadow:0 4px 20px rgba(13,71,161,0.06);margin-bottom:0.8rem;position:relative;z-index:100;}
+.hb-nav-brand{display:flex;align-items:center;text-decoration:none !important;gap:0.1rem;flex-shrink:0;}
+.hb-nav-logo{height:52px;width:auto;display:block;}
+.hb-nav-wordmark{font-size:1.15rem;font-weight:800;letter-spacing:-0.02em;line-height:1.1;}
+.hb-nav-wordmark .wm-teman{color:#0D47A1;}
+.hb-nav-wordmark .wm-edu{color:#FF7A00;}
+.hb-nav-logo-fallback{font-size:1.8rem;}
+.hb-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;z-index:110;position:relative;}
+.hb-toggle span{display:block;width:24px;height:3px;background:#1b2f4b;border-radius:3px;transition:transform 0.3s ease,opacity 0.25s ease;margin:5px 0;}
+.hb-toggle.open span:nth-child(1){transform:translateY(8px) rotate(45deg);}
+.hb-toggle.open span:nth-child(2){opacity:0;}
+.hb-toggle.open span:nth-child(3){transform:translateY(-8px) rotate(-45deg);}
+.hb-nav-links{display:flex;align-items:center;gap:0.35rem;}
+.hb-nav-link{display:inline-block;padding:0.45rem 0.9rem;border-radius:10px;font-size:0.88rem;font-weight:600;color:#1b2f4b !important;text-decoration:none !important;transition:background 0.2s ease,color 0.2s ease;white-space:nowrap;}
+.hb-nav-link:hover{background:rgba(13,71,161,0.08);color:#0D47A1 !important;}
+.hb-nav-link.hb-nav-active{background:linear-gradient(145deg,#ff8c1a,#ff7a00);color:#ffffff !important;box-shadow:0 3px 10px rgba(255,122,0,0.22);}
+@media(max-width:768px){
+.hb-nav-logo{height:42px;}
+.hb-nav-wordmark{font-size:1rem;}
+.hb-toggle{display:block;}
+.hb-nav-links{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;flex-direction:column;background:rgba(255,255,255,0.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(13,71,161,0.1);border-radius:14px;box-shadow:0 12px 36px rgba(13,71,161,0.12);padding:0.6rem;gap:0.25rem;z-index:105;animation:hbSlideDown 0.25s ease;}
+.hb-nav-links.hb-open{display:flex;}
+.hb-nav-link{display:block;width:100%;text-align:center;padding:0.7rem 1rem;border-radius:10px;font-size:0.95rem;}
+.hb-nav-link:hover{background:rgba(13,71,161,0.06);}
+@keyframes hbSlideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+}
+</style>""",
+        unsafe_allow_html=True,
+    )
+
+    # ── 2. Inject HTML navbar as a compact concatenated string ──
+    home_href = f"?language={language}&access=Student&student_page=student-chat"
+    brand_html = (
+        f'<a href="{home_href}" class="hb-nav-brand">'
+        f'{logo_img}'
+        f'<span class="hb-nav-wordmark"><span class="wm-teman">Teman</span><span class="wm-edu">EDU</span></span>'
+        f'</a>'
+    )
+    nav_html = (
+        '<nav class="hb-navbar" id="temanNavbar">'
+        f'{brand_html}'
+        f'<div class="hb-nav-links" id="temanNavLinks">{nav_items_html}</div>'
+        '<button class="hb-toggle" id="temanHbToggle" aria-label="Menu">'
+        '<span></span><span></span><span></span>'
+        '</button>'
+        '</nav>'
+    )
+    st.markdown(nav_html, unsafe_allow_html=True)
+
+    # ── 3. JS for hamburger toggle ──
+    components.html(
+        """
+        <script>
+        (function() {
+            const parentDoc = window.parent.document;
+            const btn = parentDoc.getElementById('temanHbToggle');
+            const links = parentDoc.getElementById('temanNavLinks');
+            if (!btn || !links) return;
+
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                btn.classList.toggle('open');
+                links.classList.toggle('hb-open');
+            });
+
+            // Close menu when clicking a link
+            links.querySelectorAll('.hb-nav-link').forEach(function(a) {
+                a.addEventListener('click', function() {
+                    btn.classList.remove('open');
+                    links.classList.remove('hb-open');
+                });
+            });
+
+            // Close menu when clicking outside
+            parentDoc.addEventListener('click', function(e) {
+                if (!parentDoc.getElementById('temanNavbar').contains(e.target)) {
+                    btn.classList.remove('open');
+                    links.classList.remove('hb-open');
+                }
+            });
+        })();
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
 
 
 def _render_left_sidebar(language: str, active_page: str, user: dict[str, Any] | None) -> None:
@@ -3600,6 +3842,8 @@ def main() -> None:
     bootstrap()
     restore_auth_from_query()
     restore_navigation_state()
+    if _query_get("landing") in {"1", "true", "yes"}:
+        st.session_state[_landing_state_key()] = True
     if "language" not in st.session_state:
         st.session_state["language"] = _query_get("language", "en") if _query_get("language", "en") in {"en", "bm"} else "en"
     if "access_mode" not in st.session_state:
@@ -3607,6 +3851,15 @@ def main() -> None:
 
     language = st.session_state["language"]
     mode = st.session_state["access_mode"]
+
+    # Splash screen: show once per session, but don't block deep-links like ?access=Admin.
+    started = bool(st.session_state.get(_landing_state_key(), False))
+    if started and _query_get("landing") is not None:
+        _query_set(landing=None)
+    requested_access = _query_get("access", "Student")
+    if not started and requested_access == "Student" and mode == "Student":
+        render_landing_page(language)
+        return
 
     if mode == "Student":
         _query_set(language=language, access="Student")

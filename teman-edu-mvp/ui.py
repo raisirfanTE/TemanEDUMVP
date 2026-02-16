@@ -169,7 +169,7 @@ def inject_mobile_css() -> None:
             .nav-brand {
                 display: inline-flex;
                 align-items: center;
-                gap: 0.5rem;
+                gap: 0;
                 text-decoration: none !important;
             }
             .nav-logo-link {
@@ -182,10 +182,22 @@ def inject_mobile_css() -> None:
                 opacity: 0.95;
             }
             .top-logo-img {
-                width: 76px;
-                height: 76px;
+                width: 92px;
+                height: 92px;
                 object-fit: contain;
                 border-radius: 10px;
+            }
+            .nav-logo-fallback-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 62px;
+                height: 62px;
+                border-radius: 14px;
+                background: #eff6ff;
+                border: 1px solid #bfdbfe;
+                color: #1e40af;
+                font-size: 2rem;
             }
             .top-logo-wordmark {
                 font-size: 2.15rem;
@@ -639,6 +651,38 @@ def inject_mobile_css() -> None:
             .stApp input[type="radio"],
             .stApp input[type="checkbox"] {
                 accent-color: var(--trust-anchor) !important;
+            }
+
+            /* ── Metric widget text visibility fix ── */
+            [data-testid="stMetric"] {
+                color: var(--text-main) !important;
+            }
+            [data-testid="stMetric"] [data-testid="stMetricLabel"] {
+                color: var(--text-main) !important;
+            }
+            [data-testid="stMetric"] [data-testid="stMetricLabel"] label,
+            [data-testid="stMetric"] [data-testid="stMetricLabel"] p {
+                color: var(--text-main) !important;
+                -webkit-text-fill-color: var(--text-main) !important;
+                font-weight: 600 !important;
+            }
+            [data-testid="stMetric"] [data-testid="stMetricValue"] {
+                color: var(--trust-anchor) !important;
+                -webkit-text-fill-color: var(--trust-anchor) !important;
+                font-weight: 800 !important;
+                font-size: 1.8rem !important;
+            }
+            [data-testid="stMetric"] [data-testid="stMetricDelta"] {
+                color: var(--text-main) !important;
+                -webkit-text-fill-color: var(--text-main) !important;
+            }
+            /* Also ensure st.caption under metrics is readable */
+            [data-testid="stCaptionContainer"] {
+                color: var(--text-muted) !important;
+            }
+            [data-testid="stCaptionContainer"] p {
+                color: var(--text-muted) !important;
+                -webkit-text-fill-color: var(--text-muted) !important;
             }
 
             .teman-hero {
@@ -1384,8 +1428,13 @@ def inject_mobile_css() -> None:
                     font-size: 1.75rem;
                 }
                 .top-logo-img {
-                    width: 56px;
-                    height: 56px;
+                    width: 72px;
+                    height: 72px;
+                }
+                .nav-logo-fallback-icon {
+                    width: 52px;
+                    height: 52px;
+                    font-size: 1.5rem;
                 }
                 .nav-links {
                     width: 100%;
@@ -1424,6 +1473,303 @@ def inject_mobile_css() -> None:
             [data-testid="stSidebar"] [role="radiogroup"] [data-checked="true"] + div p {
                 color: #ffffff !important;
                 font-weight: 600;
+            }
+
+            /* Final visibility and centering overrides */
+            .block-container {
+                max-width: min(1180px, 94vw) !important;
+                margin: 0 auto !important;
+                padding-top: 0.8rem !important;
+                padding-bottom: 2.5rem !important;
+            }
+            .top-nav {
+                max-width: min(1180px, 94vw);
+                margin: 0 auto 1rem;
+            }
+            .top-logo-wordmark {
+                font-size: clamp(1.65rem, 2vw, 2rem);
+            }
+            .chat-shell-header {
+                font-size: clamp(1.3rem, 2.1vw, 1.7rem);
+                color: #123e86;
+                margin-bottom: 0.9rem;
+            }
+            .chat-page-card {
+                max-width: 980px;
+                margin: 0 auto 1rem;
+                border: 1px solid #cadcf3;
+                border-radius: 16px;
+                background: linear-gradient(150deg, #ffffff 0%, #f7fbff 100%);
+                box-shadow: 0 10px 24px rgba(30, 64, 175, 0.1);
+                padding: 1.15rem 1.2rem;
+                position: relative;
+                overflow: hidden;
+            }
+            .chat-page-card::before {
+                content: "";
+                position: absolute;
+                top: -68px;
+                right: -48px;
+                width: 190px;
+                height: 190px;
+                border-radius: 999px;
+                background: radial-gradient(circle, rgba(249, 115, 22, 0.2) 0%, rgba(249, 115, 22, 0) 70%);
+                pointer-events: none;
+            }
+            .chat-page-card::after {
+                content: "";
+                position: absolute;
+                bottom: -78px;
+                left: -50px;
+                width: 210px;
+                height: 210px;
+                border-radius: 999px;
+                background: radial-gradient(circle, rgba(30, 64, 175, 0.16) 0%, rgba(30, 64, 175, 0) 72%);
+                pointer-events: none;
+            }
+            .chat-page-card h3 {
+                font-size: 1.9rem;
+                color: #123e86;
+                margin-bottom: 0.45rem;
+                text-align: center;
+                position: relative;
+                z-index: 1;
+            }
+            .chat-page-card p {
+                font-size: 1.03rem;
+                color: #355575;
+                line-height: 1.55;
+                margin-bottom: 0;
+                text-align: center;
+                position: relative;
+                z-index: 1;
+            }
+            .student-chat-hero-logo {
+                width: min(210px, 44vw);
+                margin: 0 auto 0.45rem;
+                display: block;
+                filter: drop-shadow(0 10px 20px rgba(13, 71, 161, 0.18));
+                animation: studentLogoFloat 3.8s ease-in-out infinite;
+                position: relative;
+                z-index: 1;
+            }
+            .chat-messages-container {
+                max-width: 980px;
+                margin: 1rem auto;
+                padding: 0;
+            }
+            .chat-messages {
+                max-width: 980px;
+                margin: 0 auto;
+                padding: 0.95rem;
+                border: 1px solid #d2e1f5;
+                background: linear-gradient(180deg, #ffffff, #f8fbff);
+            }
+            .chat-progress-container {
+                max-width: 980px;
+                margin: 1rem auto 1.2rem;
+                border-radius: 14px;
+                padding: 0.95rem 1rem;
+                background: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 58%, #F97316 100%);
+                box-shadow: 0 10px 26px rgba(30, 64, 175, 0.2);
+            }
+            .progress-bar-wrapper {
+                height: 10px;
+                background: rgba(255, 255, 255, 0.34);
+            }
+            .progress-bar {
+                background: #ffffff;
+            }
+            .progress-text {
+                margin-top: 0.56rem;
+                font-size: 1.02rem;
+                font-weight: 700;
+                color: #ffffff;
+            }
+            .message {
+                margin-bottom: 1rem;
+            }
+            .message-avatar {
+                font-size: 1.72rem;
+                min-width: 40px;
+            }
+            .message-content {
+                border-radius: 14px;
+                padding: 0.9rem 1rem;
+                box-shadow: 0 6px 16px rgba(30, 64, 175, 0.09);
+            }
+            .assistant-message .message-content {
+                background: linear-gradient(130deg, #1E40AF 0%, #1D4ED8 100%);
+                color: #ffffff;
+            }
+            .user-message .message-content {
+                border: 1px solid #c6d7f1;
+                background: #eef5ff;
+                color: #1f3b56;
+            }
+            .message-author {
+                font-size: 0.92rem;
+                font-weight: 700;
+                margin-bottom: 0.38rem;
+            }
+            .message-text {
+                font-size: 1.02rem;
+                line-height: 1.52;
+            }
+            .transition-message {
+                max-width: 980px;
+                margin: 0.9rem auto;
+                border-left: 4px solid #f97316;
+                background: #fff7ed;
+                color: #9a3412;
+                font-size: 0.95rem;
+                font-style: normal;
+            }
+            .chat-input-panel {
+                max-width: 980px;
+                margin: 1rem auto;
+                border: 1px solid #9ebef0;
+                box-shadow: 0 6px 16px rgba(30, 64, 175, 0.08);
+                background: #ffffff;
+            }
+            .panel-header {
+                font-size: 1.05rem;
+                color: #1E40AF;
+            }
+            .panel-help {
+                color: #3a546f;
+                font-size: 0.98rem;
+                line-height: 1.5;
+            }
+            .privacy-note {
+                max-width: 980px;
+                margin: 0.7rem auto 0;
+                border-left: 4px solid #1E40AF;
+                border-radius: 8px;
+                background: #ecf4ff;
+                color: #1f496f;
+                font-size: 0.93rem;
+            }
+            .input-area {
+                max-width: 980px;
+                margin: 0 auto 1rem;
+                padding: 1rem;
+                border: 1px solid #cfdef3;
+                background: #f8fbff;
+            }
+            .nav-buttons {
+                max-width: 980px;
+                margin: 1rem auto 0.5rem;
+            }
+            .stApp [data-testid="stCaptionContainer"] p {
+                color: #42607f !important;
+                font-size: 0.94rem !important;
+                opacity: 1 !important;
+            }
+            .stApp [data-testid="stMarkdownContainer"] p,
+            .stApp [data-testid="stText"] p {
+                font-size: 1rem;
+                line-height: 1.55;
+            }
+            .stApp [data-testid="stMultiSelect"] label p,
+            .stApp [data-testid="stSelectbox"] label p,
+            .stApp [data-testid="stNumberInput"] label p,
+            .stApp [data-testid="stSlider"] label p {
+                font-size: 1rem !important;
+                color: #1f3f66 !important;
+                font-weight: 700 !important;
+                opacity: 1 !important;
+            }
+            .stApp [data-testid="stMultiSelect"] [data-baseweb="tag"] {
+                background: #e8f1ff !important;
+                border: 1px solid #b9cfee !important;
+                color: #1c4371 !important;
+            }
+            .stApp [data-testid="stMultiSelect"] [data-baseweb="tag"] span {
+                color: #1c4371 !important;
+                font-size: 0.9rem !important;
+            }
+            .stApp [data-testid="stMultiSelect"] [data-baseweb="select"] > div,
+            .stApp [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+                min-height: 48px !important;
+                border-radius: 12px !important;
+                border: 1px solid #bcd1ee !important;
+                background: #ffffff !important;
+            }
+            .stApp [data-testid="stMultiSelect"] input,
+            .stApp [data-testid="stSelectbox"] input {
+                color: #1f3f66 !important;
+                -webkit-text-fill-color: #1f3f66 !important;
+                font-size: 0.96rem !important;
+            }
+            .stApp [data-baseweb="input"] input,
+            .stApp [data-baseweb="textarea"] textarea,
+            .stApp [data-baseweb="select"] input,
+            .stApp input[type="text"],
+            .stApp input[type="number"],
+            .stApp [role="spinbutton"] {
+                color: #111827 !important;
+                -webkit-text-fill-color: #111827 !important;
+                caret-color: #111827 !important;
+            }
+            .stApp [data-baseweb="input"] input::placeholder,
+            .stApp [data-baseweb="textarea"] textarea::placeholder,
+            .stApp [data-baseweb="select"] input::placeholder,
+            .stApp input[type="text"]::placeholder,
+            .stApp input[type="number"]::placeholder {
+                color: #6b7280 !important;
+                -webkit-text-fill-color: #6b7280 !important;
+                opacity: 1 !important;
+            }
+            .stApp [data-baseweb="popover"] *,
+            .stApp [role="listbox"] *,
+            .stApp [data-baseweb="menu"] * {
+                color: #111827 !important;
+                -webkit-text-fill-color: #111827 !important;
+            }
+            .stApp [data-testid="stMultiSelect"] input::placeholder,
+            .stApp [data-testid="stSelectbox"] input::placeholder {
+                color: #6c86a5 !important;
+                opacity: 1 !important;
+            }
+            [data-testid="stButton"] button {
+                min-height: 46px;
+                font-size: 0.98rem;
+                font-weight: 700;
+            }
+            @keyframes studentLogoFloat {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-7px); }
+                100% { transform: translateY(0px); }
+            }
+            @media (max-width: 768px) {
+                .block-container {
+                    max-width: 100% !important;
+                    padding-left: 0.82rem !important;
+                    padding-right: 0.82rem !important;
+                }
+                .chat-page-card {
+                    padding: 0.9rem 0.9rem;
+                }
+                .chat-page-card h3 {
+                    font-size: 1.45rem;
+                }
+                .chat-page-card p {
+                    font-size: 0.96rem;
+                }
+                .student-chat-hero-logo {
+                    width: min(170px, 52vw);
+                }
+                .message-text {
+                    font-size: 0.96rem;
+                }
+                .progress-text {
+                    font-size: 0.94rem;
+                }
+                [data-testid="stButton"] button {
+                    min-height: 44px;
+                    font-size: 0.94rem;
+                }
             }
         </style>
         """,
