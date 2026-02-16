@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import json
 from html import escape
 from typing import Any
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 
 I18N = {
@@ -1695,12 +1693,19 @@ def inject_mobile_css() -> None:
                 border-radius: 12px !important;
                 border: 1px solid #bcd1ee !important;
                 background: #ffffff !important;
+                opacity: 1 !important;
             }
             .stApp [data-testid="stMultiSelect"] input,
             .stApp [data-testid="stSelectbox"] input {
                 color: #1f3f66 !important;
                 -webkit-text-fill-color: #1f3f66 !important;
                 font-size: 0.96rem !important;
+            }
+            .stApp [data-testid="stSelectbox"] [data-baseweb="select"] *,
+            .stApp [data-testid="stMultiSelect"] [data-baseweb="select"] * {
+                color: #111827 !important;
+                -webkit-text-fill-color: #111827 !important;
+                opacity: 1 !important;
             }
             .stApp [data-baseweb="input"] input,
             .stApp [data-baseweb="textarea"] textarea,
@@ -1925,44 +1930,4 @@ def render_pathway_card(recommendation: dict[str, Any], language: str) -> None:
 
 
 def inject_interaction_js() -> None:
-    trigger_labels = ["Next", "Seterusnya", "Generate Recommendations"]
-    pulse_labels = ["Let's Begin", "Jom Mula", "Start Journey", "Start My Journey", "Mula Perjalanan", "Mula Perjalanan Saya"]
-    script = f"""
-    <script>
-    (function() {{
-      const parentDoc = window.parent.document;
-      if (!parentDoc) return;
-
-      if (!window.parent.__temanShortcutBound) {{
-        parentDoc.addEventListener("keydown", function(e) {{
-          if (!(e.ctrlKey || e.metaKey) || e.key !== "Enter") return;
-          const labels = {json.dumps(trigger_labels)};
-          const buttons = Array.from(parentDoc.querySelectorAll("button"));
-          const target = buttons.find((btn) =>
-            labels.some((label) => (btn.innerText || "").trim().startsWith(label))
-          );
-          if (target) target.click();
-        }});
-        window.parent.__temanShortcutBound = true;
-      }}
-
-      const pulseLabels = {json.dumps(pulse_labels)};
-      const allButtons = Array.from(parentDoc.querySelectorAll("button"));
-      allButtons.forEach((btn) => {{
-        const text = (btn.innerText || "").trim();
-        if (pulseLabels.some((label) => text.startsWith(label))) {{
-          btn.classList.add("teman-breathe");
-        }}
-        if (btn.matches('[kind="primary"], [data-testid="baseButton-primary"]')) {{
-          btn.classList.add("teman-primary-glow");
-        }}
-      }});
-
-      const chatBox = parentDoc.querySelector(".chat-messages");
-      if (chatBox) {{
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }}
-    }})();
-    </script>
-    """
-    components.html(script, height=0)
+    return

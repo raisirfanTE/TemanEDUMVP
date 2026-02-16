@@ -10,7 +10,6 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 from sqlalchemy import func, select
 
 from auth import authenticate_user
@@ -1412,7 +1411,7 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
         )
         
         if st.button(
-            "🚀 Generate My Recommendations",
+            "Generate My Recommendations",
             key=_wizard_state_key(prefix, "chat_generate"),
             type="primary",
             use_container_width=True,
@@ -1651,7 +1650,7 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
     
     with nav_left:
         if st.button(
-            "⬅️ Back",
+            "Back",
             key=_wizard_state_key(prefix, "chat_back"),
             use_container_width=True,
             disabled=current_idx == 0,
@@ -1662,7 +1661,7 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
             st.rerun()
     
     with nav_right:
-        next_label = "✅ Save & Continue" if current_idx < len(questions_order) - 1 else "🎯 Complete & Review"
+        next_label = "Save & Continue" if current_idx < len(questions_order) - 1 else "Complete & Review"
         if st.button(
             next_label,
             key=_wizard_state_key(prefix, "chat_continue"),
@@ -1671,14 +1670,14 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
         ):
             valid, error, normalized = validate_answer(current_question, answer_payload)
             if not valid:
-                st.error(f"⚠️ {error}")
+                st.error(error)
             else:
                 updated_profile = update_profile(profile, current_question_id, normalized)
                 st.session_state[profile_key] = updated_profile
                 st.session_state[_wizard_state_key(prefix, "chat_edit_question")] = None
                 
                 # Show success message
-                st.success("✨ Saved! Moving on...")
+                st.success("Saved. Moving on...")
                 
                 next_question_id = next_question(updated_profile, _chat_question_map(updated_profile))
                 _query_set(chat_q=next_question_id if next_question_id else "done")
@@ -1686,7 +1685,7 @@ def render_chat(prefix: str, language: str) -> tuple[bool, dict[str, Any] | None
     # Edit option for current answer
     if _question_answered(current_question_id, profile):
         if st.button(
-            "🔄 Clear & Re-answer",
+            "Clear & Re-answer",
             key=_wizard_state_key(prefix, f"chat_clear_{current_question_id}"),
             type="secondary",
         ):
@@ -3486,6 +3485,11 @@ def render_landing_page(language: str) -> None:
             display: block;
             filter: drop-shadow(0 10px 18px rgba(13, 71, 161, 0.18));
             will-change: transform;
+            animation: temanFloat 3.2s ease-in-out infinite;
+        }
+        @keyframes temanFloat {
+            0%, 100% {transform: translateY(0) rotate(0deg);}
+            50% {transform: translateY(-8px) rotate(0.4deg);}
         }
         .landing-sub {
             margin: 0.2rem auto 0.65rem;
@@ -3548,7 +3552,7 @@ def render_landing_page(language: str) -> None:
         "semak kesediaan, dan rancang langkah seterusnya."
         "</div>"
     )
-    button_label = "🚀 Begin now" if language == "en" else "🚀 Mula sekarang"
+    button_label = "Begin now" if language == "en" else "Mula sekarang"
     footer = (
         "By continuing you agree to share only non-sensitive info. You can clear answers anytime."
         if language == "en"
@@ -3572,28 +3576,6 @@ def render_landing_page(language: str) -> None:
         """,
         unsafe_allow_html=True,
     )
-    components.html(
-        """
-        <script>
-        (function() {
-          const parentDoc = window.parent.document;
-          const logo = parentDoc.querySelector(".landing-logo");
-          if (!logo) return;
-          let frame = 0;
-          const tick = () => {
-            frame += 1;
-            const y = Math.sin(frame / 26) * 7;
-            const r = Math.sin(frame / 45) * 0.8;
-            logo.style.transform = `translateY(${y}px) rotate(${r}deg)`;
-            requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
-        })();
-        </script>
-        """,
-        height=0,
-        width=0,
-    )
     if st.button(button_label, key="landing_begin", use_container_width=True, type="primary"):
         st.session_state[_landing_state_key()] = True
         _navigate(language=language, access="Student", student_page="student-chat")
@@ -3601,11 +3583,11 @@ def render_landing_page(language: str) -> None:
 
 def _render_top_nav(language: str, active_page: str | None, active_access: str = "Student") -> None:
     links = [
-        ("student-chat", "💬 Student Chat", "Student"),
-        ("results", "📊 Results", "Student"),
-        ("course-finder", "🔍 Course Finder", "Student"),
-        ("application-tracker", "📋 Tracker", "Student"),
-        ("about", "ℹ️ About Us", "Student"),
+        ("student-chat", "Student Chat", "Student"),
+        ("results", "Results", "Student"),
+        ("course-finder", "Course Finder", "Student"),
+        ("application-tracker", "Tracker", "Student"),
+        ("about", "About Us", "Student"),
     ]
 
     logo_uri = _logo_data_uri()
@@ -3624,17 +3606,13 @@ def _render_top_nav(language: str, active_page: str | None, active_access: str =
     st.markdown(
         """<style>
 .hb-navbar{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1.2rem;background:rgba(255,255,255,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(13,71,161,0.08);border-radius:16px;box-shadow:0 4px 20px rgba(13,71,161,0.06);margin-bottom:0.8rem;position:relative;z-index:100;}
+.hb-navbar{gap:0.65rem;flex-wrap:wrap;}
 .hb-nav-brand{display:flex;align-items:center;text-decoration:none !important;gap:0.1rem;flex-shrink:0;}
 .hb-nav-logo{height:52px;width:auto;display:block;}
 .hb-nav-wordmark{font-size:1.15rem;font-weight:800;letter-spacing:-0.02em;line-height:1.1;}
 .hb-nav-wordmark .wm-teman{color:#0D47A1;}
 .hb-nav-wordmark .wm-edu{color:#FF7A00;}
 .hb-nav-logo-fallback{font-size:1.8rem;}
-.hb-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;z-index:110;position:relative;}
-.hb-toggle span{display:block;width:24px;height:3px;background:#1b2f4b;border-radius:3px;transition:transform 0.3s ease,opacity 0.25s ease;margin:5px 0;}
-.hb-toggle.open span:nth-child(1){transform:translateY(8px) rotate(45deg);}
-.hb-toggle.open span:nth-child(2){opacity:0;}
-.hb-toggle.open span:nth-child(3){transform:translateY(-8px) rotate(-45deg);}
 .hb-nav-links{display:flex;align-items:center;gap:0.35rem;}
 .hb-nav-link{display:inline-block;padding:0.45rem 0.9rem;border-radius:10px;font-size:0.88rem;font-weight:600;color:#1b2f4b !important;text-decoration:none !important;transition:background 0.2s ease,color 0.2s ease;white-space:nowrap;}
 .hb-nav-link:hover{background:rgba(13,71,161,0.08);color:#0D47A1 !important;}
@@ -3642,12 +3620,9 @@ def _render_top_nav(language: str, active_page: str | None, active_access: str =
 @media(max-width:768px){
 .hb-nav-logo{height:42px;}
 .hb-nav-wordmark{font-size:1rem;}
-.hb-toggle{display:block;}
-.hb-nav-links{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;flex-direction:column;background:rgba(255,255,255,0.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(13,71,161,0.1);border-radius:14px;box-shadow:0 12px 36px rgba(13,71,161,0.12);padding:0.6rem;gap:0.25rem;z-index:105;animation:hbSlideDown 0.25s ease;}
-.hb-nav-links.hb-open{display:flex;}
+.hb-nav-links{display:flex;position:static;flex-wrap:wrap;width:100%;padding:0.2rem 0;gap:0.35rem;}
 .hb-nav-link{display:block;width:100%;text-align:center;padding:0.7rem 1rem;border-radius:10px;font-size:0.95rem;}
 .hb-nav-link:hover{background:rgba(13,71,161,0.06);}
-@keyframes hbSlideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
 }
 </style>""",
         unsafe_allow_html=True,
@@ -3665,50 +3640,9 @@ def _render_top_nav(language: str, active_page: str | None, active_access: str =
         '<nav class="hb-navbar" id="temanNavbar">'
         f'{brand_html}'
         f'<div class="hb-nav-links" id="temanNavLinks">{nav_items_html}</div>'
-        '<button class="hb-toggle" id="temanHbToggle" aria-label="Menu">'
-        '<span></span><span></span><span></span>'
-        '</button>'
         '</nav>'
     )
     st.markdown(nav_html, unsafe_allow_html=True)
-
-    # ── 3. JS for hamburger toggle ──
-    components.html(
-        """
-        <script>
-        (function() {
-            const parentDoc = window.parent.document;
-            const btn = parentDoc.getElementById('temanHbToggle');
-            const links = parentDoc.getElementById('temanNavLinks');
-            if (!btn || !links) return;
-
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                btn.classList.toggle('open');
-                links.classList.toggle('hb-open');
-            });
-
-            // Close menu when clicking a link
-            links.querySelectorAll('.hb-nav-link').forEach(function(a) {
-                a.addEventListener('click', function() {
-                    btn.classList.remove('open');
-                    links.classList.remove('hb-open');
-                });
-            });
-
-            // Close menu when clicking outside
-            parentDoc.addEventListener('click', function(e) {
-                if (!parentDoc.getElementById('temanNavbar').contains(e.target)) {
-                    btn.classList.remove('open');
-                    links.classList.remove('hb-open');
-                }
-            });
-        })();
-        </script>
-        """,
-        height=0,
-        width=0,
-    )
 
 
 def _render_left_sidebar(language: str, active_page: str, user: dict[str, Any] | None) -> None:
